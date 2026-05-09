@@ -6,7 +6,9 @@ It lets you add commands such as "Open in VS Code" or "Open in Terminal" to Find
 
 ## Origin
 
-SuperKMenu started from a small frustration raised by a group friend, K: the existing "super right-click" style tools were not flexible enough for quickly wiring up launch actions such as opening the current Finder folder in WezTerm.
+SuperKMenu started from a small frustration raised by K, a real friend from a WeChat group: the existing "super right-click" style tools were not flexible enough for quickly wiring up launch actions such as opening the current Finder folder in WezTerm.
+
+The name is a nod to that friend K and to the idea of a keyboard-like, configurable Finder menu: a small "super key" for launching the actions you actually use.
 
 The goal is to keep that workflow direct: define a command, give it a menu title, enable it, and use it from Finder without building Automator services or digging through nested Services menus.
 
