@@ -1,0 +1,241 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {};
+	objectVersion = 60;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A00000000000000000000101 /* SuperKMenuApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000201 /* SuperKMenuApp.swift */; };
+		A00000000000000000000102 /* SuperKMenu.icns in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000202 /* SuperKMenu.icns */; };
+		A00000000000000000000103 /* FinderSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000203 /* FinderSync.swift */; };
+		A00000000000000000000104 /* SuperKMenuFinderExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = A00000000000000000000302 /* SuperKMenuFinderExtension.appex */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A00000000000000000000401 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A00000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A00000000000000000000012;
+			remoteInfo = SuperKMenuFinderExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A00000000000000000000501 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (A00000000000000000000104 /* SuperKMenuFinderExtension.appex in Embed App Extensions */, );
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		A00000000000000000000201 /* SuperKMenuApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuperKMenuApp.swift; sourceTree = "<group>"; };
+		A00000000000000000000202 /* SuperKMenu.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = SuperKMenu.icns; path = Assets/SuperKMenu.icns; sourceTree = SOURCE_ROOT; };
+		A00000000000000000000203 /* FinderSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinderSync.swift; sourceTree = "<group>"; };
+		A00000000000000000000204 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A00000000000000000000205 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A00000000000000000000301 /* SuperKMenu.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SuperKMenu.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A00000000000000000000302 /* SuperKMenuFinderExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SuperKMenuFinderExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A00000000000000000000601 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		A00000000000000000000602 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A00000000000000000000002 = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000701 /* SuperKMenu */,
+				A00000000000000000000702 /* SuperKMenuFinderExtension */,
+				A00000000000000000000202 /* SuperKMenu.icns */,
+				A00000000000000000000703 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A00000000000000000000701 /* SuperKMenu */ = {
+			isa = PBXGroup;
+			children = (A00000000000000000000201 /* SuperKMenuApp.swift */, A00000000000000000000204 /* Info.plist */, );
+			path = CleanApp/SuperKMenu;
+			sourceTree = SOURCE_ROOT;
+		};
+		A00000000000000000000702 /* SuperKMenuFinderExtension */ = {
+			isa = PBXGroup;
+			children = (A00000000000000000000203 /* FinderSync.swift */, A00000000000000000000205 /* Info.plist */, );
+			path = CleanApp/SuperKMenuFinderExtension;
+			sourceTree = SOURCE_ROOT;
+		};
+		A00000000000000000000703 /* Products */ = {
+			isa = PBXGroup;
+			children = (A00000000000000000000301 /* SuperKMenu.app */, A00000000000000000000302 /* SuperKMenuFinderExtension.appex */, );
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A00000000000000000000011 /* SuperKMenu */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A00000000000000000000801 /* Build configuration list for PBXNativeTarget "SuperKMenu" */;
+			buildPhases = (A00000000000000000000901 /* Sources */, A00000000000000000000601 /* Frameworks */, A00000000000000000000902 /* Resources */, A00000000000000000000501 /* Embed App Extensions */, );
+			buildRules = ();
+			dependencies = (A00000000000000000000402 /* PBXTargetDependency */, );
+			name = SuperKMenu;
+			productName = SuperKMenu;
+			productReference = A00000000000000000000301 /* SuperKMenu.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A00000000000000000000012 /* SuperKMenuFinderExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A00000000000000000000802 /* Build configuration list for PBXNativeTarget "SuperKMenuFinderExtension" */;
+			buildPhases = (A00000000000000000000903 /* Sources */, A00000000000000000000602 /* Frameworks */, A00000000000000000000904 /* Resources */, );
+			buildRules = ();
+			dependencies = ();
+			name = SuperKMenuFinderExtension;
+			productName = SuperKMenuFinderExtension;
+			productReference = A00000000000000000000302 /* SuperKMenuFinderExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A00000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2630;
+				LastUpgradeCheck = 2630;
+				TargetAttributes = {
+					A00000000000000000000011 = {CreatedOnToolsVersion = 26.3; };
+					A00000000000000000000012 = {CreatedOnToolsVersion = 26.3; };
+				};
+			};
+			buildConfigurationList = A00000000000000000000800 /* Build configuration list for PBXProject "SuperKMenu" */;
+			compatibilityVersion = "Xcode 15.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (en, Base, );
+			mainGroup = A00000000000000000000002;
+			productRefGroup = A00000000000000000000703 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (A00000000000000000000011 /* SuperKMenu */, A00000000000000000000012 /* SuperKMenuFinderExtension */, );
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A00000000000000000000902 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A00000000000000000000102 /* SuperKMenu.icns in Resources */, ); runOnlyForDeploymentPostprocessing = 0; };
+		A00000000000000000000904 /* Resources */ = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A00000000000000000000901 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A00000000000000000000101 /* SuperKMenuApp.swift in Sources */, ); runOnlyForDeploymentPostprocessing = 0; };
+		A00000000000000000000903 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A00000000000000000000103 /* FinderSync.swift in Sources */, ); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A00000000000000000000402 /* PBXTargetDependency */ = {isa = PBXTargetDependency; target = A00000000000000000000012 /* SuperKMenuFinderExtension */; targetProxy = A00000000000000000000401 /* PBXContainerItemProxy */; };
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		A00000000000000000000811 /* Debug */ = {isa = XCBuildConfiguration; buildSettings = {CLANG_ENABLE_MODULES = YES; MACOSX_DEPLOYMENT_TARGET = 13.0; SDKROOT = macosx; SWIFT_VERSION = 5.0; }; name = Debug; };
+		A00000000000000000000812 /* Release */ = {isa = XCBuildConfiguration; buildSettings = {CLANG_ENABLE_MODULES = YES; MACOSX_DEPLOYMENT_TARGET = 13.0; SDKROOT = macosx; SWIFT_VERSION = 5.0; }; name = Release; };
+		A00000000000000000000821 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CleanApp/SuperKMenu/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/../Frameworks", );
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chenwencheng.SuperKMenu;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		A00000000000000000000822 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CleanApp/SuperKMenu/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/../Frameworks", );
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chenwencheng.SuperKMenu;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		A00000000000000000000831 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_USER_SELECTED_FILES = readwrite;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CleanApp/SuperKMenuFinderExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/../Frameworks", "@executable_path/../../../../Frameworks", );
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chenwencheng.SuperKMenu.FinderExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				WRAPPER_EXTENSION = appex;
+			};
+			name = Debug;
+		};
+		A00000000000000000000832 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_USER_SELECTED_FILES = readwrite;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = CleanApp/SuperKMenuFinderExtension/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/../Frameworks", "@executable_path/../../../../Frameworks", );
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.chenwencheng.SuperKMenu.FinderExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 5.0;
+				WRAPPER_EXTENSION = appex;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A00000000000000000000800 /* Build configuration list for PBXProject "SuperKMenu" */ = {isa = XCConfigurationList; buildConfigurations = (A00000000000000000000811 /* Debug */, A00000000000000000000812 /* Release */, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		A00000000000000000000801 /* Build configuration list for PBXNativeTarget "SuperKMenu" */ = {isa = XCConfigurationList; buildConfigurations = (A00000000000000000000821 /* Debug */, A00000000000000000000822 /* Release */, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		A00000000000000000000802 /* Build configuration list for PBXNativeTarget "SuperKMenuFinderExtension" */ = {isa = XCConfigurationList; buildConfigurations = (A00000000000000000000831 /* Debug */, A00000000000000000000832 /* Release */, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+/* End XCConfigurationList section */
+	};
+	rootObject = A00000000000000000000001 /* Project object */;
+}
