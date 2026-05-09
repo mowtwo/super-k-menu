@@ -166,6 +166,18 @@ enum MenuIcon {
             }
         }
 
+        for appName in appNames(from: action) {
+            if let image = applicationIcon(named: appName) {
+                return image
+            }
+        }
+
+        for appPath in appPaths(from: action.command) {
+            if let image = icon(forFile: appPath) {
+                return image
+            }
+        }
+
         return symbolName(for: action).flatMap(symbol) ?? symbol("command")
     }
 
@@ -177,6 +189,35 @@ enum MenuIcon {
         return image
     }
 
+    private static func applicationIcon(named name: String) -> NSImage? {
+        let candidates = [
+            name,
+            name.replacingOccurrences(of: ".app", with: ""),
+            knownApplicationName(for: name)
+        ].compactMap { $0 }
+
+        for candidate in candidates {
+            if let path = NSWorkspace.shared.fullPath(forApplication: candidate),
+               let image = icon(forFile: path) {
+                return image
+            }
+
+            let fixedPaths = [
+                "/Applications/\(candidate).app",
+                "/System/Applications/\(candidate).app",
+                "/System/Applications/Utilities/\(candidate).app",
+                "/System/Volumes/Data/Applications/\(candidate).app"
+            ]
+            for path in fixedPaths {
+                if let image = icon(forFile: path) {
+                    return image
+                }
+            }
+        }
+
+        return nil
+    }
+
     private static func icon(forFile path: String) -> NSImage? {
         let expandedPath = (path as NSString).expandingTildeInPath
         guard FileManager.default.fileExists(atPath: expandedPath) else {
@@ -185,6 +226,78 @@ enum MenuIcon {
         let image = NSWorkspace.shared.icon(forFile: expandedPath)
         image.size = NSSize(width: 16, height: 16)
         return image
+    }
+
+    private static func appNames(from action: MenuAction) -> [String] {
+        var names = quotedMatches(in: action.command, pattern: #"open\s+-a\s+"([^"]+)""#)
+        names.append(contentsOf: quotedMatches(in: action.command, pattern: #"open\s+-a\s+'([^']+)'"#))
+        names.append(contentsOf: unquotedMatches(in: action.command, pattern: #"open\s+-a\s+([^\s{;|&]+)"#))
+
+        if let titleApp = appNameFromTitle(action.title) {
+            names.append(titleApp)
+        }
+
+        return unique(names.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty })
+    }
+
+    private static func appPaths(from command: String) -> [String] {
+        var paths = quotedMatches(in: command, pattern: #""([^"]+\.app)""#)
+        paths.append(contentsOf: quotedMatches(in: command, pattern: #"'([^']+\.app)'"#))
+        paths.append(contentsOf: unquotedMatches(in: command, pattern: #"([/\~][^\s;|&]+\.app)"#))
+        return unique(paths)
+    }
+
+    private static func appNameFromTitle(_ title: String) -> String? {
+        let prefixes = ["Open in ", "Open with "]
+        for prefix in prefixes where title.localizedCaseInsensitiveContains(prefix) {
+            let nsTitle = title as NSString
+            let range = nsTitle.range(of: prefix, options: [.caseInsensitive])
+            if range.location != NSNotFound {
+                return nsTitle.substring(from: range.location + range.length)
+            }
+        }
+        return nil
+    }
+
+    private static func knownApplicationName(for name: String) -> String? {
+        switch name.lowercased() {
+        case "vscode", "vs code", "code":
+            return "Visual Studio Code"
+        case "terminal":
+            return "Terminal"
+        case "wezterm":
+            return "WezTerm"
+        default:
+            return nil
+        }
+    }
+
+    private static func quotedMatches(in text: String, pattern: String) -> [String] {
+        matches(in: text, pattern: pattern)
+    }
+
+    private static func unquotedMatches(in text: String, pattern: String) -> [String] {
+        matches(in: text, pattern: pattern)
+    }
+
+    private static func matches(in text: String, pattern: String) -> [String] {
+        guard let regex = try? NSRegularExpression(pattern: pattern) else {
+            return []
+        }
+
+        let nsText = text as NSString
+        let range = NSRange(location: 0, length: nsText.length)
+        return regex.matches(in: text, range: range).compactMap { match in
+            guard match.numberOfRanges > 1 else {
+                return nil
+            }
+            return nsText.substring(with: match.range(at: 1))
+        }
+    }
+
+    private static func unique(_ values: [String]) -> [String] {
+        var seen = Set<String>()
+        return values.filter { seen.insert($0.lowercased()).inserted }
     }
 
     private static func symbolName(for action: MenuAction) -> String? {

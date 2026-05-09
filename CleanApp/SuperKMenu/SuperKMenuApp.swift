@@ -441,15 +441,13 @@ final class ConfigStore: ObservableObject {
             id: "example-vscode",
             title: "Open in VS Code",
             command: "open -a \"Visual Studio Code\" {path}",
-            enabled: false,
-            iconPath: "sf:chevron.left.forwardslash.chevron.right"
+            enabled: false
         ),
         MenuAction(
             id: "example-terminal",
             title: "Open in Terminal",
             command: "open -a Terminal {path}",
-            enabled: false,
-            iconPath: "sf:terminal"
+            enabled: false
         )
     ]
 }

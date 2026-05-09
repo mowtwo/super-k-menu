@@ -4,13 +4,19 @@ SuperKMenu is a small macOS menu bar app plus Finder Sync extension for configur
 
 It lets you add commands such as "Open in VS Code" or "Open in Terminal" to Finder's right-click menu. Actions run in the background through `/bin/zsh -lc`; the configuration window only appears when you launch the app directly or open it from the menu bar.
 
+## Origin
+
+SuperKMenu started from a small frustration raised by a group friend, K: the existing "super right-click" style tools were not flexible enough for quickly wiring up launch actions such as opening the current Finder folder in WezTerm.
+
+The goal is to keep that workflow direct: define a command, give it a menu title, enable it, and use it from Finder without building Automator services or digging through nested Services menus.
+
 ## Features
 
 - Configurable Finder context menu actions
 - JSON-backed config at `~/.super-k-menu/actions.json`
 - Disabled example actions for VS Code and Terminal
 - Menu bar controls for opening settings and restarting Finder
-- Consistent Finder menu icons, with optional per-action icon overrides
+- Finder menu action icons inferred from the target app, with optional overrides
 - Customizable status bar icon through `statusBarIconPath`
 - Finder extension config mirroring for reliable sandboxed reads
 
@@ -64,15 +70,13 @@ Example:
       "id": "example-vscode",
       "title": "Open in VS Code",
       "command": "open -a \"Visual Studio Code\" {path}",
-      "enabled": false,
-      "iconPath": "sf:chevron.left.forwardslash.chevron.right"
+      "enabled": false
     },
     {
       "id": "example-terminal",
       "title": "Open in Terminal",
       "command": "open -a Terminal {path}",
-      "enabled": false,
-      "iconPath": "sf:terminal"
+      "enabled": false
     }
   ],
   "allowedFolders": [],
@@ -80,7 +84,7 @@ Example:
 }
 ```
 
-`iconPath` is optional. If it is empty, SuperKMenu uses a compact symbol based on the action title/command. This keeps Finder context menu icons visually consistent. Set `iconPath` to a file/app path only when you explicitly want a richer custom icon.
+`iconPath` is optional. If it is empty, SuperKMenu tries to infer the target app from the command or title and uses that app's icon. If no target app can be found, it falls back to a compact symbol.
 
 ## Build
 

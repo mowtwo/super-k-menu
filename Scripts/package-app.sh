@@ -18,4 +18,8 @@ rm -rf "$DIST_APP"
 mkdir -p dist
 cp -R "$BUILT_APP" "$DIST_APP"
 
+if command -v pluginkit >/dev/null 2>&1; then
+  pluginkit -r "$BUILT_APP/Contents/PlugIns/SuperKMenuFinderExtension.appex" 2>/dev/null || true
+fi
+
 echo "Packaged: $DIST_APP"
