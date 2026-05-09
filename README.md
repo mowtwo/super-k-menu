@@ -18,6 +18,8 @@ The goal is to keep that workflow direct: define a command, give it a menu title
 - JSON-backed config at `~/.super-k-menu/actions.json`
 - Disabled example actions for VS Code and Terminal
 - Menu bar controls for opening settings and restarting Finder
+- Built-in diagnostics window with main app logs, Finder extension logs, and extension registration status
+- One-click GitHub issue draft with recent diagnostics attached
 - Finder menu action icons inferred from the target app, with optional overrides
 - Customizable status bar icon through `statusBarIconPath`
 - Finder extension config mirroring for reliable sandboxed reads
@@ -87,6 +89,27 @@ Example:
 ```
 
 `iconPath` is optional. If it is empty, SuperKMenu tries to infer the target app from the command or title and uses that app's icon. If no target app can be found, it falls back to a compact symbol.
+
+## Diagnostics
+
+Use the menu bar icon and choose `View Logs` to inspect:
+
+- Main app log: `/tmp/superkmenu-main.log`
+- Finder extension log: `~/Library/Containers/com.chenwencheng.SuperKMenu.FinderExtension/Data/Library/Application Support/SuperKMenu/finder-extension.log`
+- Current `pluginkit` registration status
+- Public and mirrored action configuration
+
+Choose `Report Issue with Logs` to open a prefilled GitHub issue draft with recent diagnostics.
+
+## Clean Local State
+
+For reproducing a fresh install state locally:
+
+```bash
+./Scripts/clean-local-state.sh
+```
+
+This stops SuperKMenu, disables/unregisters the Finder extension, removes `/Applications/SuperKMenu.app`, deletes local SuperKMenu config/log files, and restarts Finder.
 
 ## Build
 

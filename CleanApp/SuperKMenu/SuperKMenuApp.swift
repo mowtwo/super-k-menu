@@ -20,6 +20,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var launchedByActionURL = false
     private var initialWindowWorkItem: DispatchWorkItem?
     private var isCleaningUpForQuit = false
+    private var lastHandledURL: URL?
+    private var lastHandledURLDate: Date?
+
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        NSAppleEventManager.shared().setEventHandler(
+            self,
+            andSelector: #selector(handleURLEvent(_:withReplyEvent:)),
+            forEventClass: AEEventClass(kInternetEventClass),
+            andEventID: AEEventID(kAEGetURL)
+        )
+    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
@@ -40,16 +51,47 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func application(_ application: NSApplication, open urls: [URL]) {
+        handle(urls)
+    }
+
+    @objc private func handleURLEvent(_ event: NSAppleEventDescriptor, withReplyEvent replyEvent: NSAppleEventDescriptor) {
+        guard let rawURL = event.paramDescriptor(forKeyword: keyDirectObject)?.stringValue,
+              let url = URL(string: rawURL) else {
+            DebugLog.append("received malformed apple event url")
+            return
+        }
+        handle([url])
+    }
+
+    private func handle(_ urls: [URL]) {
         launchedByActionURL = true
         initialWindowWorkItem?.cancel()
         initialWindowWorkItem = nil
         for url in urls {
+            if shouldSkipDuplicate(url) {
+                DebugLog.append("skipped duplicate url=\(url.absoluteString)")
+                continue
+            }
+            DebugLog.append("handling url=\(url.absoluteString)")
             if url.scheme == "superkmenu", url.host == "settings" {
                 showConfigurationWindow()
             } else {
                 actionRouter.handle(url)
             }
         }
+    }
+
+    private func shouldSkipDuplicate(_ url: URL) -> Bool {
+        defer {
+            lastHandledURL = url
+            lastHandledURLDate = Date()
+        }
+        guard lastHandledURL == url,
+              let lastHandledURLDate,
+              Date().timeIntervalSince(lastHandledURLDate) < 1 else {
+            return false
+        }
+        return true
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
@@ -69,6 +111,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         let menu = NSMenu()
         menu.addItem(statusMenuItem(title: "Open SuperKMenu", action: #selector(openConfigurationFromMenu), icon: "slider.horizontal.3"))
+        menu.addItem(statusMenuItem(title: "View Logs", action: #selector(openLogsFromMenu), icon: "doc.text.magnifyingglass"))
+        menu.addItem(statusMenuItem(title: "Report Issue with Logs", action: #selector(reportIssueFromMenu), icon: "ladybug"))
+        menu.addItem(.separator())
         menu.addItem(statusMenuItem(title: "Open Extension Settings", action: #selector(openExtensionSettingsFromMenu), icon: "puzzlepiece.extension"))
         menu.addItem(statusMenuItem(title: "Restart Finder", action: #selector(restartFinderFromMenu), icon: "arrow.clockwise"))
         menu.addItem(.separator())
@@ -91,6 +136,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func openConfigurationFromMenu() {
         showConfigurationWindow()
+    }
+
+    @objc private func openLogsFromMenu() {
+        LogWindowPresenter.show()
+    }
+
+    @objc private func reportIssueFromMenu() {
+        GitHubIssueReporter.openIssue()
     }
 
     @objc private func openExtensionSettingsFromMenu() {
@@ -176,6 +229,12 @@ struct ContentView: View {
             Spacer()
             Button("Open Extension Settings") {
                 SystemActions.openExtensionSettings()
+            }
+            Button("View Logs") {
+                LogWindowPresenter.show()
+            }
+            Button("Report Issue") {
+                GitHubIssueReporter.openIssue()
             }
             Button("Restart Finder") {
                 SystemActions.restartFinder()
@@ -520,7 +579,7 @@ final class ActionRouter {
               let id = components.queryItems?.first(where: { $0.name == "id" })?.value,
               let path = components.queryItems?.first(where: { $0.name == "path" })?.value,
               let action = configStore.enabledAction(id: id) else {
-            DebugLog.append("missing or disabled action")
+            DebugLog.append("missing or disabled action url=\(url.absoluteString)")
             return
         }
 
@@ -532,6 +591,15 @@ final class ActionRouter {
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/bin/zsh")
         process.arguments = ["-lc", command]
+        let output = Pipe()
+        process.standardOutput = output
+        process.standardError = output
+        process.terminationHandler = { process in
+            let data = output.fileHandleForReading.readDataToEndOfFile()
+            let text = String(data: data, encoding: .utf8)?
+                .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            DebugLog.append("action finished title=\(action.title) exit=\(process.terminationStatus) output=\(text)")
+        }
 
         do {
             try process.run()
@@ -599,6 +667,10 @@ enum SystemActions {
         run("/usr/bin/killall", arguments: ["Finder"], logLabel: "restart finder")
     }
 
+    static func plugInKitStatus() -> String {
+        runAndCapture("/usr/bin/pluginkit", arguments: ["-m", "-A", "-D", "-vvv", "-i", extensionIdentifier])
+    }
+
     private static func finderExtensionURL() -> URL? {
         Bundle.main.builtInPlugInsURL?
             .appendingPathComponent("SuperKMenuFinderExtension.appex", isDirectory: true)
@@ -619,12 +691,32 @@ enum SystemActions {
             return false
         }
     }
+
+    private static func runAndCapture(_ executable: String, arguments: [String]) -> String {
+        let process = Process()
+        let output = Pipe()
+        process.executableURL = URL(fileURLWithPath: executable)
+        process.arguments = arguments
+        process.standardOutput = output
+        process.standardError = output
+        do {
+            try process.run()
+            process.waitUntilExit()
+            let data = output.fileHandleForReading.readDataToEndOfFile()
+            let text = String(data: data, encoding: .utf8) ?? ""
+            return "exit=\(process.terminationStatus)\n\(text)"
+        } catch {
+            return "failed: \(error.localizedDescription)"
+        }
+    }
 }
 
 enum DebugLog {
+    static let mainLogURL = URL(fileURLWithPath: "/tmp/superkmenu-main.log")
+
     static func append(_ message: String) {
         let line = "\(Date()) \(message)\n"
-        let url = URL(fileURLWithPath: "/tmp/superkmenu-main.log")
+        let url = mainLogURL
         guard let data = line.data(using: .utf8) else {
             return
         }
@@ -641,6 +733,157 @@ enum DebugLog {
         } else {
             try? data.write(to: url)
         }
+    }
+}
+
+enum Diagnostics {
+    static let repositoryURL = URL(string: "https://github.com/mowtwo/super-k-menu")!
+
+    static var finderLogURL: URL {
+        FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent("Library/Containers/com.chenwencheng.SuperKMenu.FinderExtension/Data/Library/Application Support/SuperKMenu", isDirectory: true)
+            .appendingPathComponent("finder-extension.log")
+    }
+
+    static func snapshot(maxLogCharacters: Int = 12000) -> String {
+        let bundle = Bundle.main
+        let version = bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "unknown"
+        let build = bundle.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "unknown"
+        let configText = readTail(SharedPaths.configurationFileURL, maxCharacters: maxLogCharacters / 3)
+        let mirrorText = readTail(SharedPaths.mirroredConfigurationFileURL, maxCharacters: maxLogCharacters / 3)
+        let mainText = readTail(DebugLog.mainLogURL, maxCharacters: maxLogCharacters)
+        let finderText = readTail(finderLogURL, maxCharacters: maxLogCharacters)
+
+        return """
+        SuperKMenu Diagnostics
+        Version: \(version) (\(build))
+        App path: \(bundle.bundleURL.path)
+        Config path: \(SharedPaths.configurationFileURL.path)
+        Mirror config path: \(SharedPaths.mirroredConfigurationFileURL.path)
+        Main log path: \(DebugLog.mainLogURL.path)
+        Finder log path: \(finderLogURL.path)
+
+        pluginkit:
+        \(SystemActions.plugInKitStatus())
+
+        ~/.super-k-menu/actions.json:
+        \(configText)
+
+        Finder extension mirrored actions.json:
+        \(mirrorText)
+
+        Main app log:
+        \(mainText)
+
+        Finder extension log:
+        \(finderText)
+        """
+    }
+
+    private static func readTail(_ url: URL, maxCharacters: Int) -> String {
+        guard let data = try? Data(contentsOf: url),
+              var text = String(data: data, encoding: .utf8) else {
+            return "(missing)"
+        }
+        if text.count > maxCharacters {
+            let index = text.index(text.endIndex, offsetBy: -maxCharacters)
+            text = "... truncated ...\n" + String(text[index...])
+        }
+        return text
+    }
+}
+
+enum GitHubIssueReporter {
+    static func openIssue() {
+        var components = URLComponents(url: Diagnostics.repositoryURL.appendingPathComponent("issues/new"), resolvingAgainstBaseURL: false)
+        components?.queryItems = [
+            URLQueryItem(name: "title", value: "SuperKMenu action did not run"),
+            URLQueryItem(name: "body", value: issueBody())
+        ]
+        guard let url = components?.url else {
+            DebugLog.append("failed to build github issue url")
+            return
+        }
+        NSWorkspace.shared.open(url)
+    }
+
+    private static func issueBody() -> String {
+        """
+        ## What happened
+
+        Finder menu action did not run as expected.
+
+        ## Diagnostics
+
+        ```text
+        \(Diagnostics.snapshot(maxLogCharacters: 6000))
+        ```
+        """
+    }
+}
+
+enum LogWindowPresenter {
+    private static var controller: NSWindowController?
+
+    static func show() {
+        if let window = controller?.window {
+            window.makeKeyAndOrderFront(nil)
+            NSApp.activate(ignoringOtherApps: true)
+            return
+        }
+
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 860, height: 640),
+            styleMask: [.titled, .closable, .miniaturizable, .resizable],
+            backing: .buffered,
+            defer: false
+        )
+        window.title = "SuperKMenu Logs"
+        window.center()
+        window.contentView = NSHostingView(rootView: LogView())
+        window.isReleasedWhenClosed = false
+        let windowController = NSWindowController(window: window)
+        controller = windowController
+        windowController.showWindow(nil)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+}
+
+struct LogView: View {
+    @State private var text = Diagnostics.snapshot()
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("SuperKMenu Logs")
+                    .font(.title2.weight(.semibold))
+                Spacer()
+                Button("Refresh") {
+                    text = Diagnostics.snapshot()
+                }
+                Button("Open Main Log") {
+                    NSWorkspace.shared.open(DebugLog.mainLogURL)
+                }
+                Button("Open Finder Log") {
+                    NSWorkspace.shared.open(Diagnostics.finderLogURL)
+                }
+                Button("Report Issue") {
+                    GitHubIssueReporter.openIssue()
+                }
+                .buttonStyle(.borderedProminent)
+            }
+
+            ScrollView {
+                Text(text)
+                    .font(.system(.caption, design: .monospaced))
+                    .textSelection(.enabled)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(12)
+            }
+            .background(Color(nsColor: .textBackgroundColor))
+            .clipShape(RoundedRectangle(cornerRadius: 6))
+        }
+        .padding(18)
     }
 }
 
