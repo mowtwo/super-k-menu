@@ -169,6 +169,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func showConfigurationWindow() {
+        DebugLog.append("show configuration window")
         if let window = windowController?.window {
             window.makeKeyAndOrderFront(nil)
             NSApp.activate(ignoringOtherApps: true)
@@ -563,6 +564,7 @@ enum StatusBarIcon {
 
 final class ActionRouter {
     private let configStore: ConfigStore
+    private var runningProcesses: [Process] = []
 
     init(configStore: ConfigStore) {
         self.configStore = configStore
@@ -594,15 +596,19 @@ final class ActionRouter {
         let output = Pipe()
         process.standardOutput = output
         process.standardError = output
-        process.terminationHandler = { process in
+        process.terminationHandler = { [weak self] process in
             let data = output.fileHandleForReading.readDataToEndOfFile()
             let text = String(data: data, encoding: .utf8)?
                 .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             DebugLog.append("action finished title=\(action.title) exit=\(process.terminationStatus) output=\(text)")
+            DispatchQueue.main.async {
+                self?.runningProcesses.removeAll { $0 === process }
+            }
         }
 
         do {
             try process.run()
+            runningProcesses.append(process)
             DebugLog.append("running action title=\(action.title) command=\(command)")
         } catch {
             DebugLog.append("action failed title=\(action.title) error=\(error.localizedDescription)")
