@@ -786,6 +786,29 @@ enum Diagnostics {
         """
     }
 
+    static func issueSnapshot() -> String {
+        let bundle = Bundle.main
+        let version = bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "unknown"
+        let build = bundle.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "unknown"
+        let mainText = readTail(DebugLog.mainLogURL, maxCharacters: 1200)
+        let finderText = readTail(finderLogURL, maxCharacters: 1200)
+        let plugInText = trim(SystemActions.plugInKitStatus(), maxCharacters: 1200)
+
+        return """
+        Version: \(version) (\(build))
+        App: \(bundle.bundleURL.path)
+
+        pluginkit:
+        \(plugInText)
+
+        recent main log:
+        \(mainText)
+
+        recent finder log:
+        \(finderText)
+        """
+    }
+
     private static func readTail(_ url: URL, maxCharacters: Int) -> String {
         guard let data = try? Data(contentsOf: url),
               var text = String(data: data, encoding: .utf8) else {
@@ -796,6 +819,14 @@ enum Diagnostics {
             text = "... truncated ...\n" + String(text[index...])
         }
         return text
+    }
+
+    private static func trim(_ text: String, maxCharacters: Int) -> String {
+        guard text.count > maxCharacters else {
+            return text
+        }
+        let index = text.index(text.endIndex, offsetBy: -maxCharacters)
+        return "... truncated ...\n" + String(text[index...])
     }
 }
 
@@ -819,11 +850,13 @@ enum GitHubIssueReporter {
 
         Finder menu action did not run as expected.
 
-        ## Diagnostics
+        ## Recent Diagnostics
 
         ```text
-        \(Diagnostics.snapshot(maxLogCharacters: 6000))
+        \(Diagnostics.issueSnapshot())
         ```
+
+        More details are available in SuperKMenu -> View Logs.
         """
     }
 }
